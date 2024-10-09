@@ -1,0 +1,17 @@
+software =
+{
+        version = "0.1.0";
+        description = "File update";
+
+
+        files: (
+                {
+                        filename = "testfile"; # Name in cpio archive
+                        path = "/testfile"; # Name in target filesystem
+                        /*device = "/dev/mmcblk0p1";*/
+                        /*filesystem = "vfat"*/
+                        properties = {create-destination = "true";}
+                }
+        );
+
+}
