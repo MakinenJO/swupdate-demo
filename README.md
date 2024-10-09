@@ -1,14 +1,14 @@
+# SWUpdate Demo
+
+### Build and run container
 ```bash
 docker build -t swupdate .
-docker run -it --rm -v .config:/swupdate/.config
-
-cd swupdate
-./ci/setup.sh
-./ci/install-src-deps.sh
-
+docker run -it --rm swupdate
 ```
 
+### Configure and build swupdate
 ```bash
+cd swupdate
 make menuconfig
 make
 
