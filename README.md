@@ -15,6 +15,11 @@ make
 ./swupate
 ```
 
+
+### Documentation and helpful links
+
 [swupdate documentation](https://sbabic.github.io/swupdate/index.html)
+
 [YouTube playlist](https://www.youtube.com/playlist?list=PLK9xZawczYSDCG8whHT48N9v3X9BfcbOL)
+
 [swupdate website](https://swupdate.org/)
