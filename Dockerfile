@@ -13,7 +13,7 @@ RUN <<NUR
     git clone https://github.com/sbabic/swupdate.git
     cd swupdate
 
-    if ${TARGETPLATFORM} = "linux/arm64"
+    if [ ${TARGETPLATFORM} = "linux/arm64" ];
     then
         # Linking command (at end of script) fails on arm64
         ./ci/setup.sh || true
