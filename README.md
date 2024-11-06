@@ -117,7 +117,7 @@ echo mypassword > password
 # Generate private key
 openssl genrsa -aes256 -passout file:password -out priv.pem
 # Generate public key
-openssl rsa -in priv.pem -out public.pem -outform PEM -pubout
+openssl rsa -in priv.pem -out public.pem -outform PEM -pubout -passin file:password
 
 
 # 'sha256' attribute must be added to all images in sw description

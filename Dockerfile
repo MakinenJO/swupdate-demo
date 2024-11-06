@@ -27,3 +27,5 @@ RUN <<NUR
 NUR
 
 COPY ./.config /swupdate/.config
+
+WORKDIR /swupdate

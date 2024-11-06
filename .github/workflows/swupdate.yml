@@ -1,0 +1,120 @@
+# This requires
+# vars.DOCKERHUB_USERNAME for the result image account
+# secrets.DOCKERHUB_USERNAME for the login account that pushes the image
+# secrets.DOCKERHUB_TOKEN password for the login account password that pushes the image
+
+name: Build SWUpdate package
+on:
+  workflow_dispatch:
+
+
+permissions:
+  contents: read
+
+jobs:
+  build-swupdate-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1439  # GITHUB_TOKEN expires in 24 hours, so keep it just below that
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
+
+    - name: Generate verification and encryption tokens
+      run: |
+        # Generate file with password
+        echo mypassword > password
+
+        # Generate private key
+        openssl genrsa -aes256 -passout file:password -out priv.pem
+        # Generate public key
+        openssl rsa -in priv.pem -out public.pem -outform PEM -pubout -passin file:password
+
+        key=`openssl rand -hex 32`
+        ivt=`openssl rand -hex 16`
+
+        # Key & ivt in format for target (where swupdate is running):
+        printf "$key $ivt" > enc_key_target
+        # Key and ivt in format for swugenerator:
+        printf "key=$key\niv=$ivt" > enc_key_ivt
+
+    - name: Setup swugenerator
+      run: |
+        git clone https://github.com/sbabic/swugenerator.git
+        cd swugenerator
+        pip install .
+        swugenerator --help
+
+    - name: Create Docker artifacts
+      run: |
+        docker pull busybox
+        docker save busybox > files/busybox.tar
+        docker image rm busybox
+        docker images
+
+    - name: List artifact dir
+      run: ls files
+
+    - name: Create SWUpdate package(s)
+      run: |
+        image_size=`stat --format="%s" files/busybox.tar`
+
+        # Generate a config file for swugenerator:
+        cat > swugen.conf <<EOL
+        variables: {
+            DECOMPRESSED_SIZE="$image_size";
+        };
+        EOL
+
+        swugenerator -a files -s description/swudesc_docker -o docker_test.swu create
+        swugenerator -a files -s description/swudesc_docker_encrypted -c swugen.conf -K enc_key_ivt -k RSA,priv.pem,password -o docker_test_encrypted.swu create
+
+        
+    - name: Build swupdate test image
+      run: docker build -t swupdate .
+
+    - name: Create and run test container
+      run: |
+        docker run \
+            --rm \
+            -d \
+            --name swupdatetest \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            swupdate \
+            sleep infinity
+
+
+    - name: Copy swu packages to target
+      run: |
+        docker cp docker_test.swu swupdatetest:/swupdate/
+        docker cp docker_test_encrypted.swu swupdatetest:/swupdate/
+
+    - name: Copy keys to target
+      run: |
+        docker cp enc_key_target swupdatetest:/swupdate/
+        docker cp public.pem swupdatetest:/swupdate/
+
+
+    - name: Build swupdate with image verification disabled
+      run: |
+        docker cp noverify.config swupdatetest:/swupdate/.config
+        docker exec swupdatetest make
+
+    - name: Test docker_test.swu file against container
+      run: |
+        docker exec swupdatetest ./swupdate -i docker_test.swu -l 4
+        docker images
+
+    - name: Build swupdate with image verification enabled
+      run: |
+        docker cp .config swupdatetest:/swupdate/.config
+        docker exec swupdatetest touch .config
+        docker exec swupdatetest make
+        docker exec swupdatetest ./swupdate --help
+
+    - name: Test docker_test_encrypted.swu file against container
+      run: |
+        docker image rm busybox
+        docker exec swupdatetest ./swupdate -K enc_key_target -k public.pem -i docker_test_encrypted.swu -l 4
+        docker images
