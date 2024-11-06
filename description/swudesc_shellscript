@@ -13,7 +13,15 @@ software =
                 filename = "script.sh";
                 type = "shellscript";
                 data = "testvar";
-            }
+            },
+            {
+                filename = "script_preinst.sh";
+                type = "preinstall";
+            },
+            {
+                filename = "script_postinst.sh";
+                type = "postinstall";
+            },
         )
 
 }

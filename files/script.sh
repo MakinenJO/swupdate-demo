@@ -5,8 +5,11 @@
 
 echo "Hello swupdate: $1"
 
+argument="no_arg"
+
 if [ ! -z "$2" ]; then
     echo "$1 Argument supplied: $2"
+    argument="$2"
 fi
 
-echo "File created by script" > /scriptfile-$1
+echo "File created by script.sh, arg: $argument, $(date)" > /scriptfile-$1-$argument

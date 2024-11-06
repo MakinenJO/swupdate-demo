@@ -20,9 +20,11 @@ make
 # You can drop an .swu file here to update the target
 
 # Useful options:
-# -k <pubkey>    | pass public key for image verification
-# -K <key_file>  | pass aes keyfile for decrypting encrypted images
-# -l loglevel    | 0-4, higher level = more detail
+# -k <pubkey>      | pass public key for image verification
+# -K <key_file>    | pass aes keyfile for decrypting encrypted images
+# -l loglevel      | 0-4, higher level = more detail
+# -i <swufile>     | pass swu package directly
+# -c -i <swufile>  | check with swupdate if image file is valid
 
 ```
 
@@ -39,7 +41,7 @@ pip install .
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-## Encrypt and decrypt files
+## Encrypt and decrypt files manually
 
 ```bash
 # To encrypt files (key and iv must be passed as string)
@@ -56,13 +58,15 @@ The swupdate package is a cpio archive. You can extract it to view the contents 
 # out is the directory name where contents are extracted
 # test.swu is the swupdate package name
 cpio -idmv -D out < test.swu
-# Contents will be extracted to 'out'-directory
+# Contents will be extracted to 'out'-directory. Decrypt if necessary
 ```
 
 ## Examples
 
 
 ### Example 1: Copy single file
+
+[Docs](https://sbabic.github.io/swupdate/sw-description.html#files)
 
 ```bash
 # Generate swu package
@@ -71,11 +75,21 @@ swugenerator -a files -s description/swudesc_single_file -o test.swu create
 ```
 
 ### Example 2: Run script
-```bash
 
+[Docs](https://sbabic.github.io/swupdate/sw-description.html#scripts)
+
+```bash
+# Generate example
+swugenerator -a files -s description/swudesc_shellscript -o test.swu create
+
+# Run swupdate (To see stdout from script, use -l 4 to enable trace level logging)
+./swupdate -w "--document-root examples/www/v2" -l 4
 ```
 
 ### Example 3: Load a Docker container
+
+[Docs](https://sbabic.github.io/swupdate/handlers.html#docker-handlers)
+
 ```bash
 # Run container with docker socket mounted
 docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock swupdate
@@ -93,6 +107,9 @@ watch docker images -f reference=busybox
 ```
 
 ### Example 4: Signed image
+
+[Docs](https://sbabic.github.io/swupdate/signed_images.html)
+
 ```bash
 # Generate file with password
 echo mypassword > password
@@ -129,6 +146,8 @@ swugenerator -a files -s description/swudesc_docker -k RSA,priv.pem,password -o 
 ### Example 5: Encrypted image (aes-256-cbc)
 
 This example uses symmetrical encryption using the AES block cipher in CBC mode
+
+[Docs](https://sbabic.github.io/swupdate/encrypted_images.html)
 
 ```bash
 # Create 32-byte key
