@@ -1,0 +1,19 @@
+software =
+{
+        version = "0.1.0";
+        description = "File update";
+
+
+        scripts: (
+            {
+                filename = "script.sh";
+                type = "shellscript";
+            },
+            {
+                filename = "script.sh";
+                type = "shellscript";
+                data = "testvar";
+            }
+        )
+
+}

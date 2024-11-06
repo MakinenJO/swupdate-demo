@@ -1,0 +1,19 @@
+software =
+{
+        version = "0.1.0";
+        description = "Docker Encrypted";
+
+        images: (
+                {
+                        filename = "busybox.tar";
+                        type = "docker_imageload";
+                        encrypted = true;
+                        compressed = "zlib";
+                        installed-directly = true;
+                        properties: {
+                                decompressed-size = "@@DECOMPRESSED_SIZE@@";
+                        };
+                }
+        );
+
+}

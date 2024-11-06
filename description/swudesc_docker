@@ -1,0 +1,14 @@
+software =
+{
+        version = "0.1.0";
+        description = "Docker";
+
+        images: (
+                {
+                        filename = "busybox.tar"
+                        type = "docker_imageload";
+                        installed-directly = true;
+                }
+        );
+
+}
