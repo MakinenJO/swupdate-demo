@@ -1,1 +1,6 @@
 *.swu
+enc_*
+password
+*.pem
+out
+swugen.conf
