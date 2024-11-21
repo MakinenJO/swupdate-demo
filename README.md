@@ -226,7 +226,7 @@ swugenerator -a files -s description/swudesc_docker_encrypted -c swugen.conf -K 
 ./swupdate -K enc_key_target -k public.pem -w "--document-root examples/www/v2"
 ```
 
-### Documentation and helpful links
+## Documentation and helpful links
 
 [swupdate GitHub](https://github.com/sbabic/swupdate/)
 
