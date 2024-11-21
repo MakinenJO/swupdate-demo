@@ -70,7 +70,7 @@ jobs:
         swugenerator -a files -s description/swudesc_docker -o docker_test.swu create
         swugenerator -a files -s description/swudesc_docker_encrypted -c swugen.conf -K enc_key_ivt -k RSA,priv.pem,password -o docker_test_encrypted.swu create
 
-        
+
     - name: Build swupdate test image
       run: docker build -t swupdate .
 
@@ -118,3 +118,6 @@ jobs:
         docker image rm busybox
         docker exec swupdatetest ./swupdate -K enc_key_target -k public.pem -i docker_test_encrypted.swu -l 4
         docker images
+
+    - name: Stop test container
+      run: docker stop swupdatetest
